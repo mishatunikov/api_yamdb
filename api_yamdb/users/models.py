@@ -6,15 +6,14 @@ from django.utils.translation import gettext_lazy as _
 class CustomUser(AbstractUser):
     """Кастомная модель пользователя."""
 
-    email = models.EmailField(
-        _("email address"), verbose_name='электронная почта'
-    )
+    email = models.EmailField(_("email address"),)
     role = models.CharField(
         choices=[
             ('user', 'пользователь'),
             ('moderator', 'модератор'),
             ('admin', 'админ'),
         ],
+        max_length=9,
         default='user',
         verbose_name='роль',
     )
@@ -31,7 +30,7 @@ class CustomUser(AbstractUser):
         ),
     )
     confirmation_code = models.CharField(
-        null=True, blank=True, verbose_name='код подтверждения'
+        null=True, blank=True, verbose_name='код подтверждения', max_length=10
     )
     confirmation_code_created_at = models.DateTimeField(
         null=True, blank=True, verbose_name='время создания кода'

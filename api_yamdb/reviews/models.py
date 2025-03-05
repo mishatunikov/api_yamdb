@@ -16,6 +16,9 @@ class BaseNameSlug(models.Model):
         abstract = True
         ordering = ('name',)
 
+    def __str__(self):
+        return self.name
+
 
 class Category(BaseNameSlug):
     """Категории произведений.
@@ -27,9 +30,6 @@ class Category(BaseNameSlug):
     class Meta:
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
-
-    def __str__(self):
-        return self.name
 
 
 class Genre(BaseNameSlug):
@@ -43,16 +43,13 @@ class Genre(BaseNameSlug):
         verbose_name = 'Жанр'
         verbose_name_plural = 'Жанры'
 
-    def __str__(self):
-        return self.name
-
 
 class Title(models.Model):
     """Произведение.
 
     """
     name = models.CharField(
-        max_length=100,
+        max_length=256,
         verbose_name='Название произведения'
     )
     description = models.TextField(

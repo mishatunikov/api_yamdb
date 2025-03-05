@@ -1,57 +1,50 @@
 from django.db import models
-from pytils.translit import slugify
 
 
-class Category(models.Model):
+class BaseNameSlug(models.Model):
+    name = models.CharField(
+        verbose_name='Название',
+        max_length=256,
+    )
+    slug = models.SlugField(
+        verbose_name='Слаг',
+        max_length=50,
+        unique=True,
+    )
+
+    class Meta:
+        abstract = True
+        ordering = ('name',)
+
+
+class Category(BaseNameSlug):
     """Категории произведений.
 
     Произведения относятся к категориям: «Книги», «Фильмы», «Музыка».
     Новая категория может быть добавленаа администратором.
     """
-    name = models.CharField(
-        max_length=100,
-        unique=True
-    )
-    slug = models.SlugField(unique=True)
 
     class Meta:
-        ordering = ('name',)
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
 
     def __str__(self):
         return self.name
 
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.name)
-        super().save(*args, **kwargs)
 
-
-class Genre(models.Model):
+class Genre(BaseNameSlug):
     """Жанр произведения.
 
     Произведению может быть присвоен жанр «Сказка», «Рок», «Артхаус».
     Добавить жанр может только администратор.
     """
-    name = models.CharField(
-        max_length=100,
-        unique=True
-    )
-    slug = models.SlugField(unique=True)
 
     class Meta:
-        ordering = ('name',)
         verbose_name = 'Жанр'
         verbose_name_plural = 'Жанры'
 
     def __str__(self):
         return self.name
-
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.name)
-        super().save(*args, **kwargs)
 
 
 class Title(models.Model):

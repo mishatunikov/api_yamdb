@@ -6,7 +6,7 @@ from django.utils.translation import gettext_lazy as _
 class CustomUser(AbstractUser):
     """Кастомная модель пользователя."""
 
-    email = models.EmailField(_("email address"),)
+    email = models.EmailField(_("email address"), unique=True)
     role = models.CharField(
         choices=[
             ('user', 'пользователь'),
@@ -39,9 +39,3 @@ class CustomUser(AbstractUser):
     class Meta:
         verbose_name = 'пользователь'
         verbose_name_plural = 'Пользователи'
-        constraints = [
-            models.UniqueConstraint(
-                fields=['username', 'email'],
-                name='unique_username_email'
-            )
-        ]

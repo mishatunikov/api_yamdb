@@ -1,6 +1,10 @@
 from pathlib import Path
+from config import load_config
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# CONFIG
+CONFIG = load_config()
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'p&l%385148kslhtyn^##a1)ilz@4zqj=rq&agdol^##zgl9(vs'
@@ -102,3 +106,23 @@ STATICFILES_DIRS = ((BASE_DIR / 'static/'),)
 # Custom settings
 
 AUTH_USER_MODEL = 'users.CustomUser'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication'
+    ]
+}
+
+SIMPLE_JWT = {
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
+
+# Email settings
+EMAIL_HOST = CONFIG.email.EMAIL_HOST
+EMAIL_PORT = CONFIG.email.EMAIL_PORT
+EMAIL_USE_TLS = CONFIG.email.EMAIL_USE_TLS
+EMAIL_USE_SSL = CONFIG.email.EMAIL_USE_SSL
+
+EMAIL_HOST_USER = CONFIG.email.EMAIL_HOST_USER
+EMAIL_HOST_PASSWORD = CONFIG.email.EMAIL_HOST_PASSWORD
+DEFAULT_FROM_EMAIL = CONFIG.email.DEFAULT_FROM_EMAIL

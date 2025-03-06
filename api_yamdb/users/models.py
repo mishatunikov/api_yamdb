@@ -2,6 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from api.const import CODE_LENGTH
 
 class CustomUser(AbstractUser):
     """Кастомная модель пользователя."""
@@ -29,13 +30,20 @@ class CustomUser(AbstractUser):
             "Unselect this instead of deleting accounts."
         ),
     )
-    confirmation_code = models.CharField(
-        null=True, blank=True, verbose_name='код подтверждения', max_length=10
-    )
-    confirmation_code_created_at = models.DateTimeField(
-        null=True, blank=True, verbose_name='время создания кода'
-    )
 
     class Meta:
         verbose_name = 'пользователь'
         verbose_name_plural = 'Пользователи'
+
+
+class ConfirmationCode(models.Model):
+    user = models.OneToOneField(
+        CustomUser, on_delete=models.CASCADE, related_name='confirmation_code'
+    )
+    code = models.CharField(max_length=CODE_LENGTH)
+    created_at = models.DateTimeField(
+        auto_now=True, verbose_name='время создания'
+    )
+
+    def __str__(self):
+        return self.code

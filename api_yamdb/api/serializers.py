@@ -28,12 +28,6 @@ class TitleGetSerializer(serializers.ModelSerializer):
         model = Title
         read_only_fields = '__all__'
 
-    def get_rating(self, obj):
-        ratings = obj.ratings.all()
-        if ratings.exists():
-            average_rating = ratings.aggregate(Avg('rating'))
-            return average_rating
-        return None
 
 
 class TitleSerializer(serializers.ModelSerializer):

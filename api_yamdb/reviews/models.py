@@ -114,7 +114,8 @@ class ReviewCommentModel(models.Model):
 class Review(ReviewCommentModel):
     """Модель для отзывов пользователей на произведения."""
     title = models.ForeignKey(
-        Title, verbose_name='Произведение', on_delete=models.CASCADE
+        Title, verbose_name='Произведение', on_delete=models.CASCADE,
+        related_name='reviews'
     )
     score = models.SmallIntegerField(
         'Оценка произведения',
@@ -125,14 +126,12 @@ class Review(ReviewCommentModel):
             MaxValueValidator(
                 10, message='Оценка должна быть меньше или равна 10'
             ),
-        ],
-        default=1,
+        ]
     )
 
     class Meta(ReviewCommentModel.Meta):
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
-        default_related_name = 'reviews'
         constraints = [
             models.UniqueConstraint(
                 fields=('title', 'author'), name='unique_review'
@@ -150,4 +149,3 @@ class Comment(ReviewCommentModel):
     class Meta(ReviewCommentModel.Meta):
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'
-        default_related_name = 'comments'

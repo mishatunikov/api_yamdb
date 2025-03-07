@@ -44,5 +44,5 @@ class TokenAccessObtainSerializer(serializers.Serializer):
                 'Срок действия кода истек. Получите новый.'
             )
 
-        attrs[user] = user
+        attrs['user'] = user
         return attrs

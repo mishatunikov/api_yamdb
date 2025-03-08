@@ -1,9 +1,55 @@
 from django.utils import timezone
+from django.core.validators import MaxValueValidator, MinValueValidator
 from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
 
 from api import const
-from reviews.models import User
+from reviews.models import User, Review, Comment
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    """Сериализатор для отзывов."""
+
+    author = serializers.SlugRelatedField(
+        slug_field='username', read_only=True
+    )
+    score = serializers.IntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(10)]
+    )
+
+    def validate(self, data):
+        """Запрещает пользователям оставлять повторные отзывы."""
+        request = self.context.get('request')
+        view = self.context.get('view')
+
+        if request and request.method == 'POST':
+            author = request.user
+            title_id = view.kwargs.get('title_id')
+            if not title_id:
+                raise serializers.ValidationError(
+                    'Ошибка: отсутствует ID произведения.', code='invalid'
+                )
+            if Review.objects.filter(title_id=title_id, author=author).exists():
+                raise serializers.ValidationError(
+                    'Нельзя добавить больше 1 отзыва на произведение.',
+                    code='unique'
+                )
+        return data
+
+    class Meta:
+        model = Review
+        fields = ('id', 'text', 'author', 'score', 'pub_date', 'title')
+        read_only_fields = ('author', 'title',)
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    """Сериализатор для комментариев."""
+    author = serializers.SlugRelatedField(read_only=True, slug_field='username')
+
+    class Meta:
+        model = Comment
+        fields = ('id', 'text', 'author', 'pub_date')
+        read_only_fields = ('author',)
 
 
 class SignUpSerializer(serializers.ModelSerializer):

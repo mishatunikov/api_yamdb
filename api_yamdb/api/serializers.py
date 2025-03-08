@@ -30,7 +30,6 @@ class TitleGetSerializer(serializers.ModelSerializer):
         read_only_fields = '__all__'
 
 
-
 class TitleSerializer(serializers.ModelSerializer):
     genre = serializers.SlugRelatedField(
         slug_field='slug',

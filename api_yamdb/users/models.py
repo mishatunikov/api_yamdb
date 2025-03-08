@@ -4,6 +4,7 @@ from django.utils.translation import gettext_lazy as _
 
 from api.const import CODE_LENGTH
 
+
 class CustomUser(AbstractUser):
     """Кастомная модель пользователя."""
 
@@ -19,21 +20,13 @@ class CustomUser(AbstractUser):
         verbose_name='роль',
     )
     bio = models.TextField(
-        max_length=512, blank=True, null=True, verbose_name='биография'
-    )
-
-    is_active = models.BooleanField(
-        _("active"),
-        default=False,
-        help_text=_(
-            "Designates whether this user should be treated as active. "
-            "Unselect this instead of deleting accounts."
-        ),
+        max_length=512, blank=True, verbose_name='биография'
     )
 
     class Meta:
         verbose_name = 'пользователь'
         verbose_name_plural = 'Пользователи'
+        ordering = ('date_joined', 'role')
 
 
 class ConfirmationCode(models.Model):

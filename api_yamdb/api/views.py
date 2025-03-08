@@ -2,11 +2,19 @@ from django.utils import timezone
 from django.utils.crypto import get_random_string
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.viewsets import ModelViewSet
 from rest_framework.views import APIView
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
+from rest_framework.filters import SearchFilter
+from rest_framework.permissions import IsAdminUser
 
 from api import const
-from api.serializers import SignUpSerializer, TokenAccessObtainSerializer
+from api.permissions import IsAdminOrSuperuser
+from api.serializers import (
+    SignUpSerializer,
+    TokenAccessObtainSerializer,
+    UserSerializer,
+)
 from api.utils import send_confirmation_code
 from reviews.models import User
 from users.models import ConfirmationCode
@@ -21,22 +29,32 @@ class SignUpAPIView(APIView):
         user = User.objects.filter(
             username=data.get('username'), email=data.get('email')
         ).first()
-
         if user:
-            diff_time = (
-                timezone.now() - user.confirmation_code.created_at
-            ).seconds
-            if diff_time < const.TIMEOUT:
-                return Response(
-                    {
-                        'message': f'Повторная отправка кода возможна '
-                        f'через {60 - diff_time} секунд.'
-                    },
-                    status=status.HTTP_200_OK,
+            updated_confirmation_code = get_random_string(const.CODE_LENGTH)
+            # Т.к. создание админа через createsuperuser или создание админом
+            # нового пользователя, не создает кода и не отправляет его через
+            # email -> нужна дополнительная проверка.
+            confirmation_code, created = (
+                ConfirmationCode.objects.get_or_create(
+                    user=user, defaults={'code': updated_confirmation_code}
                 )
-            user.confirmation_code.code = get_random_string(const.CODE_LENGTH)
-            user.confirmation_code.save()
-            send_confirmation_code(user.confirmation_code, user.email)
+            )
+            if not created:
+                diff_time = (
+                    timezone.now() - user.confirmation_code.created_at
+                ).seconds
+                if diff_time < const.TIMEOUT:
+                    return Response(
+                        {
+                            'message': f'Повторная отправка кода возможна '
+                            f'через {const.TIMEOUT - diff_time} секунд.'
+                        },
+                        status=status.HTTP_200_OK,
+                    )
+                confirmation_code.code = updated_confirmation_code
+                confirmation_code.save()
+
+            send_confirmation_code(confirmation_code.code, user.email)
             return Response(
                 {'message': 'Код отправлен на ваш email'},
                 status=status.HTTP_200_OK,
@@ -61,12 +79,9 @@ class TokenAccessObtainView(APIView):
         )
         if serializer.is_valid():
             user = serializer.validated_data['user']
-            refresh = RefreshToken.for_user(user)
-            if not user.is_active:
-                user.is_active = True
-                user.save()
+            access_token = AccessToken.for_user(user)
 
             return Response(
-                {'token': str(refresh.access_token)}, status=status.HTTP_200_OK
+                {'token': str(access_token)}, status=status.HTTP_200_OK
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

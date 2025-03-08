@@ -109,7 +109,7 @@ class GenreViewSet(CategoryGenre):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    # queryset = Title.objects.all()
+    queryset = Title.objects.all()
     permission_classes = (IsAdminOrReadOnly,)
     pagination_class = PageNumberPagination
     http_method_names = ('get', 'post', 'patch', 'delete',)

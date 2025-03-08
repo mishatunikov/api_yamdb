@@ -1,9 +1,9 @@
-<<<<<<< HEAD
 from rest_framework import serializers
 from datetime import datetime as dt
-from django.db.models import Avg
-
-from reviews.models import Category, Genre, Title
+from reviews.models import Category, Genre, Title, User
+from django.utils import timezone
+from rest_framework.generics import get_object_or_404
+from api import const
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -23,7 +23,7 @@ class GenreSerializer(serializers.ModelSerializer):
 class TitleGetSerializer(serializers.ModelSerializer):
     genre = GenreSerializer(many=True, read_only=True)
     category = CategorySerializer()
-    rating = serializers.SerializerMethodField()
+    rating = serializers.IntegerField()
 
     class Meta:
         model = Title
@@ -51,13 +51,6 @@ class TitleSerializer(serializers.ModelSerializer):
         if value > year_today:
             raise serializers.ValidationError('Проверьте год издания!')
         return value
-=======
-from django.utils import timezone
-from rest_framework import serializers
-from rest_framework.generics import get_object_or_404
-
-from api import const
-from reviews.models import User
 
 
 class SignUpSerializer(serializers.ModelSerializer):
@@ -98,6 +91,5 @@ class TokenAccessObtainSerializer(serializers.Serializer):
                 'Срок действия кода истек. Получите новый.'
             )
 
-        attrs[user] = user
+        attrs['user'] = user
         return attrs
->>>>>>> develop

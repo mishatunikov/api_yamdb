@@ -25,12 +25,6 @@ from .serializers import (
 )
 
 
-
-
-# Create your views here.
-
-
-
 class SignUpAPIView(APIView):
     """Обрабатывает POST запрос на регистрацию нового пользователя."""
 

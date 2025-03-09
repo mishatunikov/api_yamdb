@@ -1,11 +1,11 @@
 from django.urls import include, path
-from rest_framework.routers import DefaultRouter
+from rest_framework.routers import SimpleRouter
 
 from api.views import SignUpAPIView, TokenAccessObtainView, UserViewSet
 
-router = DefaultRouter()
+router_v1 = SimpleRouter()
 
-router.register('users', UserViewSet)
+router_v1.register('users', UserViewSet)
 
 
 auth_endpoints = [
@@ -23,5 +23,5 @@ urlpatterns = [
         ),
         name='users_me',
     ),
-    path('v1/', include(router.urls)),
+    path('v1/', include(router_v1.urls)),
 ]

@@ -1,12 +1,13 @@
 from django.utils import timezone
 from django.utils.crypto import get_random_string
 from rest_framework import status
-from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet
-from rest_framework.views import APIView
-from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
+from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
-from rest_framework.permissions import IsAdminUser
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework.viewsets import ModelViewSet
+from rest_framework_simplejwt.tokens import AccessToken
 
 from api import const
 from api.permissions import IsAdminOrSuperuser
@@ -32,7 +33,7 @@ class SignUpAPIView(APIView):
         if user:
             updated_confirmation_code = get_random_string(const.CODE_LENGTH)
             # Т.к. создание админа через createsuperuser или создание админом
-            # нового пользователя, не создает кода и не отправляет его через
+            # нового пользователя не создает кода и не отправляет его через
             # email -> нужна дополнительная проверка.
             confirmation_code, created = (
                 ConfirmationCode.objects.get_or_create(
@@ -85,3 +86,44 @@ class TokenAccessObtainView(APIView):
                 {'token': str(access_token)}, status=status.HTTP_200_OK
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserViewSet(ModelViewSet):
+    """Обрабатывает запросы к данным пользователей."""
+
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = (IsAdminOrSuperuser,)
+    filter_backends = (SearchFilter,)
+    search_fields = ('username',)
+    lookup_field = 'username'
+    http_method_names = (
+        'get',
+        'post',
+        'patch',
+        'delete',
+    )
+
+    def get_permissions(self):
+        if 'me' in self.request.path:
+            return [IsAuthenticated(),]
+        return super().get_permissions()
+
+    @action(methods=['get', 'patch'], detail=False, url_name='me')
+    def current_user_data(self, request):
+        if request.method == 'PATCH':
+            serializer = UserSerializer(
+                request.user, data=request.data, partial=True
+            )
+            if serializer.is_valid():
+                serializer.validated_data.pop('role', None)
+                serializer.save()
+                return Response(
+                    data=serializer.data, status=status.HTTP_200_OK
+                )
+            return Response(
+                serializer.errors, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        serializer = self.get_serializer(request.user)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)

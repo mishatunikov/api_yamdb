@@ -3,7 +3,8 @@ from rest_framework.permissions import SAFE_METHODS, BasePermission
 
 class IsAdminOrSuperuser(BasePermission):
     """
-    Предоставляет доступ только суперпользователям и пользователям с ролью admin
+    Предоставляет доступ только суперпользователям и пользователям с ролью
+    admin
     """
 
     def has_permission(self, request, view):

@@ -32,7 +32,7 @@ class Category(BaseNameSlug):
     Новая категория может быть добавленаа администратором.
     """
 
-    class Meta:
+    class Meta(BaseNameSlug.Meta):
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
 
@@ -44,14 +44,17 @@ class Genre(BaseNameSlug):
     Добавить жанр может только администратор.
     """
 
-    class Meta:
+    class Meta(BaseNameSlug.Meta):
         verbose_name = 'Жанр'
         verbose_name_plural = 'Жанры'
 
 
 class Title(models.Model):
-    """Произведение.
+    """
+    Модель для представления произведения.
 
+    Содержит информацию о названии, описании, годе издания, категории
+    и жанрах произведения.
     """
     name = models.CharField(
         max_length=256,

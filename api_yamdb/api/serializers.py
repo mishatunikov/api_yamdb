@@ -8,6 +8,12 @@ from django.utils import timezone
 
 
 class CategorySerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для модели Category.
+
+    Используется для преобразования объектов модели Category,
+    Исключает поле 'id' из сериализации.
+    """
 
     class Meta:
         model = Category
@@ -15,6 +21,12 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class GenreSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для модели Category.
+
+    Используется для преобразования объектов модели Genre,
+    Исключает поле 'id' из сериализации.
+    """
 
     class Meta:
         model = Genre
@@ -22,6 +34,11 @@ class GenreSerializer(serializers.ModelSerializer):
 
 
 class TitleGetSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для модели Title.
+
+    Все поля модели Title доступны для чтения, но не для записи.
+    """
     genre = GenreSerializer(many=True, read_only=True)
     category = CategorySerializer()
     rating = serializers.IntegerField()
@@ -34,6 +51,12 @@ class TitleGetSerializer(serializers.ModelSerializer):
 
 
 class TitleSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для модели Title.
+
+    Включает в себя поля для жанров и категорий, которые представлены
+    в виде SlugRelatedField.
+    """
     genre = serializers.SlugRelatedField(
         slug_field='slug',
         many=True,

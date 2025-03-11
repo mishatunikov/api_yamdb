@@ -142,6 +142,14 @@ class CategoryGenre(
     mixins.DestroyModelMixin,
     GenericViewSet,
 ):
+    """
+    Класс для работы с категориями и жанрами.
+
+    Предоставляет возможности для создания, получения списка и удаления объектов.
+    Доступ на запись есть только у администраторов, чтение доступно всем.
+    Поддерживает фильтрацию по полю 'name'.
+    Использует 'slug' в качестве lookup поля.
+    """
     permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (SearchFilter,)
     search_fields = ('name',)
@@ -149,16 +157,41 @@ class CategoryGenre(
 
 
 class CategoryViewSet(CategoryGenre):
+    """
+    ViewSet для работы с категориями.
+
+    Предоставляет возможности для создания, получения списка и удаления
+    объектов.
+    Доступ на запись есть только у администраторов, чтение доступно всем.
+    Поддерживает фильтрацию по полю 'name'.
+    """
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
 
 class GenreViewSet(CategoryGenre):
+    """
+    ViewSet для работы с жанрами.
+
+    Предоставляет возможности для создания, получения списка и удаления
+    объектов.
+    Доступ на запись есть только у администраторов, чтение доступно всем.
+    Поддерживает фильтрацию по полю 'name'.
+    """
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
 
 
 class TitleViewSet(ModelViewSet):
+    """
+    ViewSet для работы с объектами модели Title.
+
+    Предоставляет возможности для получения списка объектов, создания,
+    обновления и удаления объектов.
+    Доступ на запись есть только у администраторов, чтение доступно всем.
+    Поддерживает фильтрацию по полям 'name', 'year', 'category__slug',
+    'genre__slug'.
+    """
     queryset = Title.objects.all()
     permission_classes = (IsAdminOrReadOnly,)
     http_method_names = ('get', 'post', 'patch', 'delete',)

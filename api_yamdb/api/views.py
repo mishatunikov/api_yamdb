@@ -5,6 +5,7 @@ from django.utils.crypto import get_random_string
 from rest_framework import status, mixins
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -12,19 +13,25 @@ from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework_simplejwt.tokens import AccessToken
 
 from api import const
-from api.permissions import IsAdminOrSuperuser, IsAdminOrReadOnly
+from api.permissions import (
+    IsAdminOrSuperuser,
+    IsAdminOrReadOnly,
+    IsAdminOrOwnerOrReadOnly
+)
 from api.filters import GenreCategoryFilter
 from api.serializers import (
     SignUpSerializer,
     TokenAccessObtainSerializer,
-    UserSerializer,
     CategorySerializer,
     GenreSerializer,
     TitleGetSerializer,
     TitleSerializer,
+    UserSerializer,
+    CommentSerializer,
+    ReviewSerializer,
 )
 from api.utils import send_confirmation_code
-from reviews.models import User, Category, Genre, Title
+from reviews.models import User, Category, Genre, Title, Review
 from users.models import ConfirmationCode
 
 
@@ -214,3 +221,69 @@ class TitleViewSet(ModelViewSet):
                         order_by('name'))
             return queryset
         return Title.objects.all()
+
+
+class ReviewViewSet(ModelViewSet):
+    """Вьюсет для работы с отзывами."""
+
+    http_method_names = (
+        'get',
+        'post',
+        'patch',
+        'delete',
+    )
+    serializer_class = ReviewSerializer
+    permission_classes = (IsAdminOrOwnerOrReadOnly,)
+
+    def get_title(self):
+        """Получает произведение с предзагрузкой связанных данных."""
+        return get_object_or_404(
+            Title.objects.select_related("category"),
+            id=self.kwargs.get("title_id"),
+        )
+
+    def get_queryset(self):
+        """Возвращает список отзывов для конкретного произведения."""
+        return self.get_title().reviews.select_related("author")
+
+    def perform_create(self, serializer):
+        """Создаёт отзыв с указанием автора и произведения."""
+        serializer.save(
+            author=self.request.user,
+            title=self.get_title(),
+        )
+
+
+class CommentViewSet(ModelViewSet):
+    """Вьюсет для работы с комментариями."""
+
+    http_method_names = (
+        'get',
+        'post',
+        'patch',
+        'delete',
+    )
+    serializer_class = CommentSerializer
+    permission_classes = (IsAdminOrOwnerOrReadOnly,)
+
+    def get_review(self):
+        """Получает отзыв с предзагрузкой автора и произведения."""
+        return get_object_or_404(
+            Review.objects.select_related("author", "title"),
+            id=self.kwargs.get("review_id"),
+        )
+
+    def get_queryset(self):
+        """Возвращает список комментариев для конкретного отзыва."""
+        return (
+            self.get_review()
+            .comments.select_related("author")
+            .prefetch_related("review")
+        )
+
+    def perform_create(self, serializer):
+        """Создаёт комментарий с указанием автора и отзыва."""
+        serializer.save(
+            author=self.request.user,
+            review=self.get_review(),
+        )

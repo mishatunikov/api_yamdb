@@ -1,4 +1,4 @@
-from rest_framework.permissions import BasePermission, SAFE_METHODS
+from rest_framework.permissions import SAFE_METHODS, BasePermission
 
 
 class IsAdminOrSuperuser(BasePermission):
@@ -13,15 +13,23 @@ class IsAdminOrSuperuser(BasePermission):
 
 
 class IsAdminOrReadOnly(IsAdminOrSuperuser):
+    """
+    Для аутентифицированных пользователей имеющих статус администратора иначе
+    только просмотр.
+    """
+
     def has_permission(self, request, view):
-        return (super().has_permission(request, view)
-                or request.method in SAFE_METHODS
-                )
+        return (
+            super().has_permission(request, view)
+            or request.method in SAFE_METHODS
+        )
 
 
 class IsAdminOrOwnerOrReadOnly(BasePermission):
-    """Для аутентифицированных пользователей имеющих статус администратора или
-    автора иначе только просмотр."""
+    """
+    Для аутентифицированных пользователей имеющих статус администратора или
+    автора иначе только просмотр.
+    """
 
     def has_permission(self, request, view):
         return request.method in SAFE_METHODS or request.user.is_authenticated

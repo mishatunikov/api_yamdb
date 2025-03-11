@@ -1,5 +1,6 @@
 from datetime import timedelta
 from pathlib import Path
+
 from config import load_config
 
 BASE_DIR = Path(__file__).resolve().parent.parent

@@ -1,7 +1,6 @@
+from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.contrib.auth import get_user_model
-
 
 User = get_user_model()
 
@@ -56,9 +55,9 @@ class Title(models.Model):
     Содержит информацию о названии, описании, годе издания, категории
     и жанрах произведения.
     """
+
     name = models.CharField(
-        max_length=256,
-        verbose_name='Название произведения'
+        max_length=256, verbose_name='Название произведения'
     )
     description = models.TextField(
         max_length=200,
@@ -72,10 +71,11 @@ class Title(models.Model):
     )
 
     category = models.ForeignKey(
-        Category, on_delete=models.SET_NULL,
+        Category,
+        on_delete=models.SET_NULL,
         null=True,
         related_name='titles',
-        verbose_name='Категория'
+        verbose_name='Категория',
     )
     genre = models.ManyToManyField(
         Genre,
@@ -94,6 +94,7 @@ class Title(models.Model):
 
 class ReviewCommentModel(models.Model):
     """Абстрактная модель для отзывов и комментариев."""
+
     text = models.TextField('Текст')
     author = models.ForeignKey(
         User,
@@ -116,9 +117,12 @@ class ReviewCommentModel(models.Model):
 
 class Review(ReviewCommentModel):
     """Модель для отзывов пользователей на произведения."""
+
     title = models.ForeignKey(
-        Title, verbose_name='Произведение', on_delete=models.CASCADE,
-        related_name='reviews'
+        Title,
+        verbose_name='Произведение',
+        on_delete=models.CASCADE,
+        related_name='reviews',
     )
     score = models.SmallIntegerField(
         'Оценка произведения',
@@ -129,7 +133,7 @@ class Review(ReviewCommentModel):
             MaxValueValidator(
                 10, message='Оценка должна быть меньше или равна 10'
             ),
-        ]
+        ],
     )
 
     class Meta(ReviewCommentModel.Meta):
@@ -144,9 +148,12 @@ class Review(ReviewCommentModel):
 
 class Comment(ReviewCommentModel):
     """Модель комментариев к отзывам."""
+
     review = models.ForeignKey(
-        Review, verbose_name='Отзыв', on_delete=models.CASCADE,
-        related_name='comments'
+        Review,
+        verbose_name='Отзыв',
+        on_delete=models.CASCADE,
+        related_name='comments',
     )
 
     class Meta(ReviewCommentModel.Meta):

@@ -4,7 +4,7 @@ from django.utils.crypto import get_random_string
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, status
 from rest_framework.decorators import action
-from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -14,13 +14,22 @@ from rest_framework_simplejwt.tokens import AccessToken
 
 from api import const
 from api.filters import GenreCategoryFilter
-from api.permissions import (IsAdminOrOwnerOrReadOnly, IsAdminOrReadOnly,
-                             IsAdminOrSuperuser)
-from api.serializers import (CategorySerializer, CommentSerializer,
-                             GenreSerializer, ReviewSerializer,
-                             SignUpSerializer, TitleGetSerializer,
-                             TitleSerializer, TokenAccessObtainSerializer,
-                             UserSerializer)
+from api.permissions import (
+    IsAdminOrOwnerOrReadOnly,
+    IsAdminOrReadOnly,
+    IsAdminOrSuperuser,
+)
+from api.serializers import (
+    CategorySerializer,
+    CommentSerializer,
+    GenreSerializer,
+    ReviewSerializer,
+    SignUpSerializer,
+    TitleGetSerializer,
+    TitleSerializer,
+    TokenAccessObtainSerializer,
+    UserSerializer,
+)
 from api.utils import send_confirmation_code
 from reviews.models import Category, Genre, Review, Title, User
 from users.models import ConfirmationCode
@@ -142,14 +151,7 @@ class CategoryGenre(
     mixins.DestroyModelMixin,
     GenericViewSet,
 ):
-    """
-    Класс для работы с категориями и жанрами.
-
-    Предоставляет возможности для создания, получения списка и удаления объектов.
-    Доступ на запись есть только у администраторов, чтение доступно всем.
-    Поддерживает фильтрацию по полю 'name'.
-    Использует 'slug' в качестве lookup поля.
-    """
+    """Класс для работы с категориями и жанрами."""
 
     permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (SearchFilter,)
@@ -158,43 +160,21 @@ class CategoryGenre(
 
 
 class CategoryViewSet(CategoryGenre):
-    """
-    ViewSet для работы с категориями.
-
-    Предоставляет возможности для создания, получения списка и удаления
-    объектов.
-    Доступ на запись есть только у администраторов, чтение доступно всем.
-    Поддерживает фильтрацию по полю 'name'.
-    """
+    """ViewSet для работы с категориями."""
 
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
 
 class GenreViewSet(CategoryGenre):
-    """
-    ViewSet для работы с жанрами.
-
-    Предоставляет возможности для создания, получения списка и удаления
-    объектов.
-    Доступ на запись есть только у администраторов, чтение доступно всем.
-    Поддерживает фильтрацию по полю 'name'.
-    """
+    """ViewSet для работы с жанрами."""
 
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
 
 
 class TitleViewSet(ModelViewSet):
-    """
-    ViewSet для работы с объектами модели Title.
-
-    Предоставляет возможности для получения списка объектов, создания,
-    обновления и удаления объектов.
-    Доступ на запись есть только у администраторов, чтение доступно всем.
-    Поддерживает фильтрацию по полям 'name', 'year', 'category__slug',
-    'genre__slug'.
-    """
+    """ViewSet для работы с объектами модели Title."""
 
     queryset = Title.objects.all()
     permission_classes = (IsAdminOrReadOnly,)

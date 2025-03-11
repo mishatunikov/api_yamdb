@@ -2,14 +2,14 @@ from django.urls import include, path
 from rest_framework.routers import SimpleRouter
 
 from api.views import (
+    CategoryViewSet,
+    CommentViewSet,
+    GenreViewSet,
+    ReviewViewSet,
     SignUpAPIView,
+    TitleViewSet,
     TokenAccessObtainView,
     UserViewSet,
-    CategoryViewSet,
-    TitleViewSet,
-    GenreViewSet,
-    CommentViewSet,
-    ReviewViewSet,
 )
 
 router_v1 = SimpleRouter()

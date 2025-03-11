@@ -1,12 +1,10 @@
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.utils import timezone
 from rest_framework import serializers
-from datetime import datetime as dt
-from reviews.models import Category, Genre, Title, User
-from django.utils import timezone
 from rest_framework.generics import get_object_or_404
+
 from api import const
-from django.utils import timezone
+from reviews.models import Category, Comment, Genre, Review, Title, User
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -41,6 +39,7 @@ class TitleGetSerializer(serializers.ModelSerializer):
 
     Все поля модели Title доступны для чтения, но не для записи.
     """
+
     genre = GenreSerializer(many=True, read_only=True)
     category = CategorySerializer()
     rating = serializers.IntegerField()
@@ -49,7 +48,14 @@ class TitleGetSerializer(serializers.ModelSerializer):
         model = Title
         fields = '__all__'
         read_only_fields = (
-            'id', 'name', 'year', 'rating', 'description', 'genre', 'category')
+            'id',
+            'name',
+            'year',
+            'rating',
+            'description',
+            'genre',
+            'category',
+        )
 
 
 class TitleSerializer(serializers.ModelSerializer):
@@ -59,14 +65,12 @@ class TitleSerializer(serializers.ModelSerializer):
     Включает в себя поля для жанров и категорий, которые представлены
     в виде SlugRelatedField.
     """
+
     genre = serializers.SlugRelatedField(
-        slug_field='slug',
-        many=True,
-        queryset=Genre.objects.all()
+        slug_field='slug', many=True, queryset=Genre.objects.all()
     )
     category = serializers.SlugRelatedField(
-        slug_field='slug',
-        queryset=Category.objects.all()
+        slug_field='slug', queryset=Category.objects.all()
     )
 
     class Meta:
@@ -78,7 +82,6 @@ class TitleSerializer(serializers.ModelSerializer):
         if value > year_today:
             raise serializers.ValidationError('Проверьте год издания!')
         return value
-from reviews.models import User, Review, Comment
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -99,32 +102,35 @@ class ReviewSerializer(serializers.ModelSerializer):
         if request and request.method == 'POST':
             author = request.user
             title_id = view.kwargs.get('title_id')
-            if not title_id:
-                raise serializers.ValidationError(
-                    'Ошибка: отсутствует ID произведения.', code='invalid'
-                )
-            if Review.objects.filter(title_id=title_id, author=author).exists():
+            if Review.objects.filter(
+                title_id=title_id, author=author
+            ).exists():
                 raise serializers.ValidationError(
                     'Нельзя добавить больше 1 отзыва на произведение.',
-                    code='unique'
+                    code='unique',
                 )
         return data
 
     class Meta:
         model = Review
         fields = ('id', 'text', 'author', 'score', 'pub_date', 'title')
-        read_only_fields = ('author', 'title',)
+        read_only_fields = (
+            'author',
+            'title',
+        )
 
 
 class CommentSerializer(serializers.ModelSerializer):
     """Сериализатор для комментариев."""
-    author = serializers.SlugRelatedField(read_only=True, slug_field='username')
+
+    author = serializers.SlugRelatedField(
+        read_only=True, slug_field='username'
+    )
 
     class Meta:
         model = Comment
         fields = ('id', 'text', 'author', 'pub_date')
         read_only_fields = ('author',)
-
 
 
 class SignUpSerializer(serializers.ModelSerializer):

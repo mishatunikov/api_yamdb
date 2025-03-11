@@ -16,7 +16,7 @@ from api import const
 from api.permissions import (
     IsAdminOrSuperuser,
     IsAdminOrReadOnly,
-    IsAdminOrOwnerOrReadOnly
+    IsAdminOrOwnerOrReadOnly,
 )
 from api.filters import GenreCategoryFilter
 from api.serializers import (
@@ -120,7 +120,9 @@ class UserViewSet(ModelViewSet):
 
     def get_permissions(self):
         if 'me' in self.request.path:
-            return [IsAuthenticated(),]
+            return [
+                IsAuthenticated(),
+            ]
         return super().get_permissions()
 
     @action(methods=['get', 'patch'], detail=False, url_name='me')
@@ -157,6 +159,7 @@ class CategoryGenre(
     Поддерживает фильтрацию по полю 'name'.
     Использует 'slug' в качестве lookup поля.
     """
+
     permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (SearchFilter,)
     search_fields = ('name',)
@@ -172,6 +175,7 @@ class CategoryViewSet(CategoryGenre):
     Доступ на запись есть только у администраторов, чтение доступно всем.
     Поддерживает фильтрацию по полю 'name'.
     """
+
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
@@ -185,6 +189,7 @@ class GenreViewSet(CategoryGenre):
     Доступ на запись есть только у администраторов, чтение доступно всем.
     Поддерживает фильтрацию по полю 'name'.
     """
+
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
 
@@ -199,15 +204,22 @@ class TitleViewSet(ModelViewSet):
     Поддерживает фильтрацию по полям 'name', 'year', 'category__slug',
     'genre__slug'.
     """
+
     queryset = Title.objects.all()
     permission_classes = (IsAdminOrReadOnly,)
-    http_method_names = ('get', 'post', 'patch', 'delete',)
-    filter_backends = (
-        DjangoFilterBackend,
-        OrderingFilter,
-        GenreCategoryFilter,
+    http_method_names = (
+        'get',
+        'post',
+        'patch',
+        'delete',
     )
-    filterset_fields = ('name', 'year', 'category__slug', 'genre__slug',)
+    filter_backends = (DjangoFilterBackend,)
+    filterset_fields = (
+        'name',
+        'year',
+        'category__slug',
+        'genre__slug',
+    )
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
@@ -216,9 +228,12 @@ class TitleViewSet(ModelViewSet):
 
     def get_queryset(self):
         if self.action in ('list', 'retrieve'):
-            queryset = (Title.objects.prefetch_related('reviews').all().
-                        annotate(rating=Avg('reviews__score')).
-                        order_by('name'))
+            queryset = (
+                Title.objects.prefetch_related('reviews')
+                .all()
+                .annotate(rating=Avg('reviews__score'))
+                .order_by('name')
+            )
             return queryset
         return Title.objects.all()
 

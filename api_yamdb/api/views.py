@@ -1,37 +1,27 @@
-from django.utils import timezone
-from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Avg
+from django.utils import timezone
 from django.utils.crypto import get_random_string
-from rest_framework import status, mixins
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import mixins, status
 from rest_framework.decorators import action
-from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework.filters import SearchFilter
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.viewsets import ModelViewSet, GenericViewSet
+from rest_framework.viewsets import GenericViewSet, ModelViewSet
 from rest_framework_simplejwt.tokens import AccessToken
 
 from api import const
-from api.permissions import (
-    IsAdminOrSuperuser,
-    IsAdminOrReadOnly,
-    IsAdminOrOwnerOrReadOnly,
-)
-from api.filters import GenreCategoryFilter
-from api.serializers import (
-    SignUpSerializer,
-    TokenAccessObtainSerializer,
-    CategorySerializer,
-    GenreSerializer,
-    TitleGetSerializer,
-    TitleSerializer,
-    UserSerializer,
-    CommentSerializer,
-    ReviewSerializer,
-)
+from api.permissions import (IsAdminOrOwnerOrReadOnly, IsAdminOrReadOnly,
+                             IsAdminOrSuperuser)
+from api.serializers import (CategorySerializer, CommentSerializer,
+                             GenreSerializer, ReviewSerializer,
+                             SignUpSerializer, TitleGetSerializer,
+                             TitleSerializer, TokenAccessObtainSerializer,
+                             UserSerializer)
 from api.utils import send_confirmation_code
-from reviews.models import User, Category, Genre, Title, Review
+from reviews.models import Category, Genre, Review, Title, User
 from users.models import ConfirmationCode
 
 

@@ -4,6 +4,7 @@ from reviews.models import Category, Genre, Title, User
 from django.utils import timezone
 from rest_framework.generics import get_object_or_404
 from api import const
+from django.utils import timezone
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -27,7 +28,9 @@ class TitleGetSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Title
-        read_only_fields = '__all__'
+        fields = '__all__'
+        read_only_fields = (
+            'id', 'name', 'year', 'rating', 'description', 'genre', 'category')
 
 
 class TitleSerializer(serializers.ModelSerializer):
@@ -46,7 +49,7 @@ class TitleSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def validate_year(self, value):
-        year_today = dt.date.today().year
+        year_today = timezone.now().year
         if value > year_today:
             raise serializers.ValidationError('Проверьте год издания!')
         return value

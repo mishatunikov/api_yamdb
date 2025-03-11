@@ -68,7 +68,7 @@ class Title(models.Model):
         verbose_name='Год издания',
     )
 
-    category = models.ForeignKey(
+    category = models.OneToOneField(
         Category, on_delete=models.SET_NULL,
         null=True,
         related_name='titles',

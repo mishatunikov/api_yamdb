@@ -4,7 +4,7 @@ from django.utils.crypto import get_random_string
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, status
 from rest_framework.decorators import action
-from rest_framework.filters import SearchFilter
+from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -13,6 +13,7 @@ from rest_framework.viewsets import GenericViewSet, ModelViewSet
 from rest_framework_simplejwt.tokens import AccessToken
 
 from api import const
+from api.filters import GenreCategoryFilter
 from api.permissions import (IsAdminOrOwnerOrReadOnly, IsAdminOrReadOnly,
                              IsAdminOrSuperuser)
 from api.serializers import (CategorySerializer, CommentSerializer,
@@ -203,7 +204,11 @@ class TitleViewSet(ModelViewSet):
         'patch',
         'delete',
     )
-    filter_backends = (DjangoFilterBackend,)
+    filter_backends = (
+        DjangoFilterBackend,
+        GenreCategoryFilter,
+        OrderingFilter,
+    )
     filterset_fields = (
         'name',
         'year',

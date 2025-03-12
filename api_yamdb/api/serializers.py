@@ -1,5 +1,6 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.utils import timezone
+from django.contrib.auth.tokens import default_token_generator
 from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
 
@@ -155,22 +156,15 @@ class TokenAccessObtainSerializer(serializers.Serializer):
     """
 
     username = serializers.CharField(max_length=150, required=True)
-    confirmation_code = serializers.CharField(
-        max_length=const.CODE_LENGTH, required=True
-    )
+    confirmation_code = serializers.CharField(required=True)
 
     def validate(self, attrs):
         user = get_object_or_404(User, username=attrs.get('username'))
-        if user.confirmation_code.code != attrs.get('confirmation_code'):
-            raise serializers.ValidationError('Введён неверный код')
 
-        if (
-            timezone.now() - user.confirmation_code.created_at
-        ).seconds > const.CODE_LIFETIME:
-            raise serializers.ValidationError(
-                'Срок действия кода истек. Получите новый.'
-            )
-
+        if not default_token_generator.check_token(
+            user, attrs['confirmation_code']
+        ):
+            raise serializers.ValidationError('Введен неверный код')
         attrs['user'] = user
         return attrs
 

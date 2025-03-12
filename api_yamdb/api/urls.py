@@ -40,7 +40,7 @@ urlpatterns = [
     path(
         'v1/users/me/',
         UserViewSet.as_view(
-            {'get': 'current_user_data', 'patch': 'current_user_data'}
+            {'get': 'me', 'patch': 'me_update'}
         ),
         name='users_me',
     ),

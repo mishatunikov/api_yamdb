@@ -1,5 +1,5 @@
-from django.db.models import Avg
 from django.contrib.auth.tokens import default_token_generator
+from django.db.models import Avg
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, status
 from rest_framework.decorators import action
@@ -11,24 +11,14 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 from rest_framework_simplejwt.tokens import AccessToken
 
-
 from api.filters import GenreCategoryFilter
-from api.permissions import (
-    IsAdminOrOwnerOrReadOnly,
-    IsAdminOrReadOnly,
-    IsAdminOrSuperuser,
-)
-from api.serializers import (
-    CategorySerializer,
-    CommentSerializer,
-    GenreSerializer,
-    ReviewSerializer,
-    SignUpSerializer,
-    TitleGetSerializer,
-    TitleSerializer,
-    TokenAccessObtainSerializer,
-    UserSerializer,
-)
+from api.permissions import (IsAdminOrOwnerOrReadOnly, IsAdminOrReadOnly,
+                             IsAdminOrSuperuser)
+from api.serializers import (CategorySerializer, CommentSerializer,
+                             GenreSerializer, ReviewSerializer,
+                             SignUpSerializer, TitleGetSerializer,
+                             TitleSerializer, TokenAccessObtainSerializer,
+                             UserSerializer)
 from api.utils import send_confirmation_code
 from reviews.models import Category, Genre, Review, Title, User
 

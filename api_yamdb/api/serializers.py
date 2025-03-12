@@ -1,6 +1,6 @@
+from django.contrib.auth.tokens import default_token_generator
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.utils import timezone
-from django.contrib.auth.tokens import default_token_generator
 from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
 

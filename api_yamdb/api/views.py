@@ -228,13 +228,13 @@ class ReviewViewSet(ModelViewSet):
     def get_title(self):
         """Получает произведение с предзагрузкой связанных данных."""
         return get_object_or_404(
-            Title.objects.select_related("category"),
-            id=self.kwargs.get("title_id"),
+            Title.objects.select_related('category'),
+            id=self.kwargs.get('title_id'),
         )
 
     def get_queryset(self):
         """Возвращает список отзывов для конкретного произведения."""
-        return self.get_title().reviews.select_related("author")
+        return self.get_title().reviews.select_related('author')
 
     def perform_create(self, serializer):
         """Создаёт отзыв с указанием автора и произведения."""
@@ -257,18 +257,22 @@ class CommentViewSet(ModelViewSet):
     permission_classes = (IsAdminOrOwnerOrReadOnly,)
 
     def get_review(self):
-        """Получает отзыв с предзагрузкой автора и произведения."""
+        """
+        Получает отзыв с предзагрузкой автора и произведения,
+        проверяя, что он принадлежит указанному произведению.
+        """
         return get_object_or_404(
-            Review.objects.select_related("author", "title"),
-            id=self.kwargs.get("review_id"),
+            Review.objects.select_related('author', 'title'),
+            id=self.kwargs.get('review_id'),
+            title_id=self.kwargs.get('title_id'),
         )
 
     def get_queryset(self):
         """Возвращает список комментариев для конкретного отзыва."""
         return (
             self.get_review()
-            .comments.select_related("author")
-            .prefetch_related("review")
+            .comments.select_related('author')
+            .prefetch_related('review')
         )
 
     def perform_create(self, serializer):

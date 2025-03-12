@@ -2,6 +2,8 @@ from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
+from api.const import MIN_SCORE, MAX_SCORE
+
 User = get_user_model()
 
 
@@ -128,10 +130,10 @@ class Review(ReviewCommentModel):
         'Оценка произведения',
         validators=[
             MinValueValidator(
-                1, message='Оценка должна быть больше или равна 1'
+                MIN_SCORE, message='Оценка должна быть больше или равна 1'
             ),
             MaxValueValidator(
-                10, message='Оценка должна быть меньше или равна 10'
+                MAX_SCORE, message='Оценка должна быть меньше или равна 10'
             ),
         ],
     )

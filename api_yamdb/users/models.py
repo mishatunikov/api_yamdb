@@ -28,6 +28,14 @@ class CustomUser(AbstractUser):
         verbose_name_plural = 'Пользователи'
         ordering = ('date_joined', 'role')
 
+    @property
+    def is_admin(self):
+        return self.role == 'admin' or self.is_superuser
+
+    @property
+    def is_admin_or_moderator(self):
+        return self.is_admin or self.role == 'moderator'
+
 
 class ConfirmationCode(models.Model):
     user = models.OneToOneField(

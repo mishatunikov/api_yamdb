@@ -2,8 +2,6 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from api.const import CODE_LENGTH
-
 
 class CustomUser(AbstractUser):
     """Кастомная модель пользователя."""
@@ -35,16 +33,3 @@ class CustomUser(AbstractUser):
     @property
     def is_admin_or_moderator(self):
         return self.is_admin or self.role == 'moderator'
-
-
-class ConfirmationCode(models.Model):
-    user = models.OneToOneField(
-        CustomUser, on_delete=models.CASCADE, related_name='confirmation_code'
-    )
-    code = models.CharField(max_length=CODE_LENGTH)
-    created_at = models.DateTimeField(
-        auto_now=True, verbose_name='время создания'
-    )
-
-    def __str__(self):
-        return self.code

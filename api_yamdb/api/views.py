@@ -54,35 +54,34 @@ class SignUpAPIView(APIView):
                     user=user, defaults={'code': updated_confirmation_code}
                 )
             )
-            if not created:
-                diff_time = (
-                    timezone.now() - user.confirmation_code.created_at
-                ).seconds
-                if diff_time < const.TIMEOUT:
-                    return Response(
-                        {
-                            'message': f'Повторная отправка кода возможна '
-                            f'через {const.TIMEOUT - diff_time} секунд.'
-                        },
-                        status=status.HTTP_200_OK,
-                    )
-                confirmation_code.code = updated_confirmation_code
-                confirmation_code.save()
+            # if not created:
+            #     diff_time = (
+            #         timezone.now() - user.confirmation_code.created_at
+            #     ).seconds
+            #     if diff_time < const.TIMEOUT:
+            #         return Response(
+            #             {
+            #                 'message': f'Повторная отправка кода возможна '
+            #                 f'через {const.TIMEOUT - diff_time} секунд.'
+            #             },
+            #             status=status.HTTP_200_OK,
+            #         )
+            confirmation_code.code = updated_confirmation_code
+            confirmation_code.save()
 
             send_confirmation_code(confirmation_code.code, user.email)
             return Response(
-                {'message': 'Код отправлен на ваш email'},
+                serializer.initial_data,
                 status=status.HTTP_200_OK,
             )
 
-        if serializer.is_valid():
-            instance = serializer.save()
-            confirmation_code = ConfirmationCode.objects.create(
-                user=instance, code=get_random_string(const.CODE_LENGTH)
-            )
-            send_confirmation_code(confirmation_code, instance.email)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
+        instance = serializer.save()
+        confirmation_code = ConfirmationCode.objects.create(
+            user=instance, code=get_random_string(const.CODE_LENGTH)
+        )
+        send_confirmation_code(confirmation_code, instance.email)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class TokenAccessObtainView(APIView):
@@ -92,14 +91,13 @@ class TokenAccessObtainView(APIView):
         serializer = TokenAccessObtainSerializer(
             data=request.data, context=request.data
         )
-        if serializer.is_valid():
-            user = serializer.validated_data['user']
-            access_token = AccessToken.for_user(user)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        access_token = AccessToken.for_user(user)
 
-            return Response(
-                {'token': str(access_token)}, status=status.HTTP_200_OK
-            )
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {'token': str(access_token)}, status=status.HTTP_200_OK
+        )
 
 
 class UserViewSet(ModelViewSet):
@@ -125,23 +123,19 @@ class UserViewSet(ModelViewSet):
             ]
         return super().get_permissions()
 
-    @action(methods=['get', 'patch'], detail=False, url_name='me')
-    def current_user_data(self, request):
-        if request.method == 'PATCH':
-            serializer = UserSerializer(
-                request.user, data=request.data, partial=True
-            )
-            if serializer.is_valid():
-                serializer.validated_data.pop('role', None)
-                serializer.save()
-                return Response(
-                    data=serializer.data, status=status.HTTP_200_OK
-                )
-            return Response(
-                serializer.errors, status=status.HTTP_400_BAD_REQUEST
-            )
-
+    @action(methods=['get'], detail=False, url_name='me')
+    def me(self, request):
         serializer = self.get_serializer(request.user)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+    @me.mapping.patch
+    def me_update(self, request):
+        serializer = UserSerializer(
+            request.user, data=request.data, partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.validated_data.pop('role', None)
+        serializer.save()
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 

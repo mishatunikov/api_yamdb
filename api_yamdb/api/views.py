@@ -1,7 +1,5 @@
 from django.db.models import Avg
-from django.utils import timezone
 from django.contrib.auth.tokens import default_token_generator
-from django.utils.crypto import get_random_string
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, status
 from rest_framework.decorators import action
@@ -13,8 +11,7 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 from rest_framework_simplejwt.tokens import AccessToken
 
-from api import const
-from api.const import CODE_LENGTH
+
 from api.filters import GenreCategoryFilter
 from api.permissions import (
     IsAdminOrOwnerOrReadOnly,
@@ -34,7 +31,6 @@ from api.serializers import (
 )
 from api.utils import send_confirmation_code
 from reviews.models import Category, Genre, Review, Title, User
-from users.models import ConfirmationCode
 
 
 class SignUpAPIView(APIView):

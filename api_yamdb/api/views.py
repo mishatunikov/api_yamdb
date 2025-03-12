@@ -1,5 +1,6 @@
 from django.db.models import Avg
 from django.utils import timezone
+from django.contrib.auth.tokens import default_token_generator
 from django.utils.crypto import get_random_string
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, status
@@ -13,6 +14,7 @@ from rest_framework.viewsets import GenericViewSet, ModelViewSet
 from rest_framework_simplejwt.tokens import AccessToken
 
 from api import const
+from api.const import CODE_LENGTH
 from api.filters import GenreCategoryFilter
 from api.permissions import (
     IsAdminOrOwnerOrReadOnly,
@@ -39,49 +41,28 @@ class SignUpAPIView(APIView):
     """Обрабатывает POST запрос на регистрацию нового пользователя."""
 
     def post(self, request):
-        data = request.data
-        serializer = SignUpSerializer(data=data)
-        user = User.objects.filter(
-            username=data.get('username'), email=data.get('email')
-        ).first()
-        if user:
-            updated_confirmation_code = get_random_string(const.CODE_LENGTH)
-            # Т.к. создание админа через createsuperuser или создание админом
-            # нового пользователя не создает кода и не отправляет его через
-            # email -> нужна дополнительная проверка.
-            confirmation_code, created = (
-                ConfirmationCode.objects.get_or_create(
-                    user=user, defaults={'code': updated_confirmation_code}
-                )
-            )
-            # if not created:
-            #     diff_time = (
-            #         timezone.now() - user.confirmation_code.created_at
-            #     ).seconds
-            #     if diff_time < const.TIMEOUT:
-            #         return Response(
-            #             {
-            #                 'message': f'Повторная отправка кода возможна '
-            #                 f'через {const.TIMEOUT - diff_time} секунд.'
-            #             },
-            #             status=status.HTTP_200_OK,
-            #         )
-            confirmation_code.code = updated_confirmation_code
-            confirmation_code.save()
+        username = request.data.get('username')
+        email = request.data.get('email')
 
-            send_confirmation_code(confirmation_code.code, user.email)
+        user = User.objects.filter(username=username, email=email).first()
+
+        if user:
+            confirmation_code = default_token_generator.make_token(user)
+            send_confirmation_code(confirmation_code, user.email)
             return Response(
-                serializer.initial_data,
+                {'email': email, 'username': username},
                 status=status.HTTP_200_OK,
             )
 
+        serializer = SignUpSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        instance = serializer.save()
-        confirmation_code = ConfirmationCode.objects.create(
-            user=instance, code=get_random_string(const.CODE_LENGTH)
+        user = serializer.save()
+        confirmation_code = default_token_generator.make_token(user)
+        send_confirmation_code(confirmation_code, user.email)
+        return Response(
+            serializer.validated_data,
+            status=status.HTTP_200_OK,
         )
-        send_confirmation_code(confirmation_code, instance.email)
-        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class TokenAccessObtainView(APIView):

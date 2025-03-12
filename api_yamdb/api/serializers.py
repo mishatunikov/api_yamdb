@@ -5,7 +5,6 @@ from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
 
 from api import const
-# from api.const import MIN_SCORE, MAX_SCORE
 from reviews.models import Category, Comment, Genre, Review, Title, User
 
 
@@ -74,15 +73,27 @@ class TitleSerializer(serializers.ModelSerializer):
     category = serializers.SlugRelatedField(
         slug_field='slug', queryset=Category.objects.all()
     )
+    rating = serializers.IntegerField(read_only=True, default=0)
 
     class Meta:
         model = Title
-        fields = '__all__'
+        fields = ('id', 'name', 'year', 'rating', 'description', 'genre', 'category')
 
     def validate_year(self, value):
         year_today = timezone.now().year
         if value > year_today:
             raise serializers.ValidationError('Проверьте год издания!')
+        return value
+
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        ret['genre'] = GenreSerializer(instance.genre, many=True).data
+        ret['category'] = CategorySerializer(instance.category).data
+        return ret
+
+    def validate_genre(self, value):
+        if not value:
+            raise serializers.ValidationError('Значение не может быть пустым.')
         return value
 
 

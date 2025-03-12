@@ -134,20 +134,26 @@ class CommentSerializer(serializers.ModelSerializer):
         read_only_fields = ('author',)
 
 
-class SignUpSerializer(serializers.ModelSerializer):
-    """Сериализатор для свмостоятельной регистрации нового пользователя."""
+class UserBaseSerializer(serializers.ModelSerializer):
+    """Базовый класс для сериализации модели User"""
 
     class Meta:
         model = User
-        fields = (
-            'email',
-            'username',
-        )
 
     def validate_username(self, value):
         if value.lower() in const.FORBIDDEN_USERNAMES:
             raise serializers.ValidationError('Недопустимый username.')
         return value
+
+
+class SignUpSerializer(UserBaseSerializer):
+    """Сериализатор для свмостоятельной регистрации нового пользователя."""
+
+    class Meta(UserBaseSerializer.Meta):
+        fields = (
+            'email',
+            'username',
+        )
 
 
 class TokenAccessObtainSerializer(serializers.Serializer):
@@ -169,11 +175,10 @@ class TokenAccessObtainSerializer(serializers.Serializer):
         return attrs
 
 
-class UserSerializer(serializers.ModelSerializer):
+class UserSerializer(UserBaseSerializer):
     """Сериализатор для взаимодействия с данными пользователей."""
 
-    class Meta:
-        model = User
+    class Meta(UserBaseSerializer.Meta):
         fields = (
             'username',
             'email',

@@ -5,6 +5,7 @@ from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
 
 from api import const
+# from api.const import MIN_SCORE, MAX_SCORE
 from reviews.models import Category, Comment, Genre, Review, Title, User
 
 
@@ -92,7 +93,10 @@ class ReviewSerializer(serializers.ModelSerializer):
         slug_field='username', read_only=True
     )
     score = serializers.IntegerField(
-        validators=[MinValueValidator(1), MaxValueValidator(10)]
+        validators=[
+            MinValueValidator(const.MIN_SCORE),
+            MaxValueValidator(const.MAX_SCORE)
+        ]
     )
 
     def validate(self, data):

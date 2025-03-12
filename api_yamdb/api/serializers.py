@@ -86,10 +86,10 @@ class TitleSerializer(serializers.ModelSerializer):
         return value
 
     def to_representation(self, instance):
-        ret = super().to_representation(instance)
-        ret['genre'] = GenreSerializer(instance.genre, many=True).data
-        ret['category'] = CategorySerializer(instance.category).data
-        return ret
+        data = super().to_representation(instance)
+        data['genre'] = GenreSerializer(instance.genre, many=True).data
+        data['category'] = CategorySerializer(instance.category).data
+        return data
 
     def validate_genre(self, value):
         if not value:

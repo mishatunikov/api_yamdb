@@ -64,7 +64,6 @@ class Title(models.Model):
     description = models.TextField(
         max_length=200,
         verbose_name='Краткое описание произведения',
-        null=True,
         blank=True,
     )
 

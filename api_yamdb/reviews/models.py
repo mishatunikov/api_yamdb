@@ -1,6 +1,8 @@
 from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.core.exceptions import ValidationError
+from django.utils import timezone
 
 from api.const import MIN_SCORE, MAX_SCORE
 
@@ -58,6 +60,12 @@ class Title(models.Model):
     и жанрах произведения.
     """
 
+    def validate_year(value):
+        current_year = timezone.now().year
+        if value > current_year:
+            raise ValidationError(
+                'Год издания не может быть больше текущего года.')
+
     name = models.CharField(
         max_length=256, verbose_name='Название произведения'
     )
@@ -67,8 +75,9 @@ class Title(models.Model):
         blank=True,
     )
 
-    year = models.PositiveSmallIntegerField(
+    year = models.SmallIntegerField(
         verbose_name='Год издания',
+        validators=[validate_year]
     )
 
     category = models.ForeignKey(

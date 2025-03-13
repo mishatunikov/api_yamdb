@@ -163,15 +163,13 @@ class TitleViewSet(ModelViewSet):
         return TitleSerializer
 
     def get_queryset(self):
-        if self.action in ('list', 'retrieve'):
-            queryset = (
-                Title.objects.prefetch_related('reviews')
-                .all()
-                .annotate(rating=Avg('reviews__score'))
-                .order_by('name')
-            )
-            return queryset
-        return Title.objects.all()
+        queryset = (
+            Title.objects.prefetch_related('reviews')
+            .all()
+            .annotate(rating=Avg('reviews__score'))
+            .order_by('name')
+        )
+        return queryset
 
 
 class ReviewViewSet(ModelViewSet):
@@ -187,18 +185,15 @@ class ReviewViewSet(ModelViewSet):
     permission_classes = (IsAdminOrOwnerOrReadOnly,)
 
     def get_title(self):
-        """Получает произведение с предзагрузкой связанных данных."""
         return get_object_or_404(
             Title.objects.select_related('category'),
             id=self.kwargs.get('title_id'),
         )
 
     def get_queryset(self):
-        """Возвращает список отзывов для конкретного произведения."""
         return self.get_title().reviews.select_related('author')
 
     def perform_create(self, serializer):
-        """Создаёт отзыв с указанием автора и произведения."""
         serializer.save(
             author=self.request.user,
             title=self.get_title(),
@@ -218,10 +213,6 @@ class CommentViewSet(ModelViewSet):
     permission_classes = (IsAdminOrOwnerOrReadOnly,)
 
     def get_review(self):
-        """
-        Получает отзыв с предзагрузкой автора и произведения,
-        проверяя, что он принадлежит указанному произведению.
-        """
         return get_object_or_404(
             Review.objects.select_related('author', 'title'),
             id=self.kwargs.get('review_id'),
@@ -229,7 +220,6 @@ class CommentViewSet(ModelViewSet):
         )
 
     def get_queryset(self):
-        """Возвращает список комментариев для конкретного отзыва."""
         return (
             self.get_review()
             .comments.select_related('author')
@@ -237,7 +227,6 @@ class CommentViewSet(ModelViewSet):
         )
 
     def perform_create(self, serializer):
-        """Создаёт комментарий с указанием автора и отзыва."""
         serializer.save(
             author=self.request.user,
             review=self.get_review(),

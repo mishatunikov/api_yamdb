@@ -2,7 +2,10 @@ from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
-from api.const import MIN_SCORE, MAX_SCORE
+from reviews.validators import year_not_in_future
+
+from reviews.const import MIN_SCORE, MAX_SCORE
+
 
 User = get_user_model()
 
@@ -27,11 +30,7 @@ class BaseNameSlug(models.Model):
 
 
 class Category(BaseNameSlug):
-    """Категории произведений.
-
-    Произведения относятся к категориям: «Книги», «Фильмы», «Музыка».
-    Новая категория может быть добавленаа администратором.
-    """
+    """Категории произведений."""
 
     class Meta(BaseNameSlug.Meta):
         verbose_name = 'Категория'
@@ -39,11 +38,7 @@ class Category(BaseNameSlug):
 
 
 class Genre(BaseNameSlug):
-    """Жанр произведения.
-
-    Произведению может быть присвоен жанр «Сказка», «Рок», «Артхаус».
-    Добавить жанр может только администратор.
-    """
+    """Жанр произведения."""
 
     class Meta(BaseNameSlug.Meta):
         verbose_name = 'Жанр'
@@ -51,12 +46,7 @@ class Genre(BaseNameSlug):
 
 
 class Title(models.Model):
-    """
-    Модель для представления произведения.
-
-    Содержит информацию о названии, описании, годе издания, категории
-    и жанрах произведения.
-    """
+    """Модель для представления произведения."""
 
     name = models.CharField(
         max_length=256, verbose_name='Название произведения'
@@ -67,8 +57,12 @@ class Title(models.Model):
         blank=True,
     )
 
-    year = models.PositiveSmallIntegerField(
+    year = models.SmallIntegerField(
         verbose_name='Год издания',
+        validators=[
+            year_not_in_future,
+        ],
+        db_index=True,
     )
 
     category = models.ForeignKey(

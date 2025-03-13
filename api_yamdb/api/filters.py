@@ -1,12 +1,17 @@
-from rest_framework import filters
+import django_filters
+
+from reviews.models import Title
 
 
-class GenreCategoryFilter(filters.BaseFilterBackend):
-    def filter_queryset(self, request, queryset, view):
-        category = request.query_params.get('category')
-        if category:
-            queryset = queryset.filter(category__slug=category)
-        genre = request.query_params.get('genre')
-        if genre:
-            queryset = queryset.filter(genre__slug=genre)
-        return queryset
+class TitleFilterSet(django_filters.FilterSet):
+
+    category = django_filters.CharFilter(
+        field_name='category__slug',
+    )
+    genre = django_filters.CharFilter(
+        field_name='genre__slug',
+    )
+
+    class Meta:
+        model = Title
+        fields = ('name', 'year', 'category', 'genre')

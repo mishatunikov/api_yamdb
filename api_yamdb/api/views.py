@@ -11,16 +11,25 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 from rest_framework_simplejwt.tokens import AccessToken
 
-from api.filters import GenreCategoryFilter
-from api.permissions import (IsAdminOrOwnerOrReadOnly, IsAdminOrReadOnly,
-                             IsAdminOrSuperuser)
-from api.serializers import (CategorySerializer, CommentSerializer,
-                             GenreSerializer, ReviewSerializer,
-                             SignUpSerializer, TitleGetSerializer,
-                             TitleSerializer, TokenAccessObtainSerializer,
-                             UserSerializer)
+from api.permissions import (
+    IsAdminOrOwnerOrReadOnly,
+    IsAdminOrReadOnly,
+    IsAdminOrSuperuser,
+)
+from api.serializers import (
+    CategorySerializer,
+    CommentSerializer,
+    GenreSerializer,
+    ReviewSerializer,
+    SignUpSerializer,
+    TitleGetSerializer,
+    TitleSerializer,
+    TokenAccessObtainSerializer,
+    UserSerializer,
+)
 from api.utils import send_confirmation_code
 from reviews.models import Category, Genre, Review, Title, User
+from api.filters import TitleFilterSet
 
 
 class SignUpAPIView(APIView):
@@ -147,15 +156,9 @@ class TitleViewSet(ModelViewSet):
     )
     filter_backends = (
         DjangoFilterBackend,
-        GenreCategoryFilter,
         OrderingFilter,
     )
-    filterset_fields = (
-        'name',
-        'year',
-        'category__slug',
-        'genre__slug',
-    )
+    filterset_class = TitleFilterSet
 
     def get_serializer_class(self):
         if self.request.method == 'GET':

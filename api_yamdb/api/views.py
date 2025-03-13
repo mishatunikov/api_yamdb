@@ -11,25 +11,16 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 from rest_framework_simplejwt.tokens import AccessToken
 
-from api.permissions import (
-    IsAdminOrOwnerOrReadOnly,
-    IsAdminOrReadOnly,
-    IsAdminOrSuperuser,
-)
-from api.serializers import (
-    CategorySerializer,
-    CommentSerializer,
-    GenreSerializer,
-    ReviewSerializer,
-    SignUpSerializer,
-    TitleGetSerializer,
-    TitleSerializer,
-    TokenAccessObtainSerializer,
-    UserSerializer,
-)
+from api.filters import TitleFilterSet
+from api.permissions import (IsAdminOrOwnerOrReadOnly, IsAdminOrReadOnly,
+                             IsAdminOrSuperuser)
+from api.serializers import (CategorySerializer, CommentSerializer,
+                             GenreSerializer, ReviewSerializer,
+                             SignUpSerializer, TitleGetSerializer,
+                             TitleSerializer, TokenAccessObtainSerializer,
+                             UserSerializer)
 from api.utils import send_confirmation_code
 from reviews.models import Category, Genre, Review, Title, User
-from api.filters import TitleFilterSet
 
 
 class SignUpAPIView(APIView):

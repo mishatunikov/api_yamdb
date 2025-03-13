@@ -12,13 +12,22 @@ from rest_framework.viewsets import GenericViewSet, ModelViewSet
 from rest_framework_simplejwt.tokens import AccessToken
 
 from api.filters import TitleFilterSet
-from api.permissions import (IsAdminOrOwnerOrReadOnly, IsAdminOrReadOnly,
-                             IsAdminOrSuperuser)
-from api.serializers import (CategorySerializer, CommentSerializer,
-                             GenreSerializer, ReviewSerializer,
-                             SignUpSerializer, TitleGetSerializer,
-                             TitleSerializer, TokenAccessObtainSerializer,
-                             UserSerializer)
+from api.permissions import (
+    IsAdminOrOwnerOrReadOnly,
+    IsAdminOrReadOnly,
+    IsAdminOrSuperuser,
+)
+from api.serializers import (
+    CategorySerializer,
+    CommentSerializer,
+    GenreSerializer,
+    ReviewSerializer,
+    SignUpSerializer,
+    TitleGetSerializer,
+    TitleSerializer,
+    TokenAccessObtainSerializer,
+    UserSerializer,
+)
 from api.utils import send_confirmation_code
 from reviews.models import Category, Genre, Review, Title, User
 
@@ -157,13 +166,12 @@ class TitleViewSet(ModelViewSet):
         return TitleSerializer
 
     def get_queryset(self):
-        queryset = (
+        return (
             Title.objects.prefetch_related('reviews')
             .all()
             .annotate(rating=Avg('reviews__score'))
             .order_by('name')
         )
-        return queryset
 
 
 class ReviewViewSet(ModelViewSet):

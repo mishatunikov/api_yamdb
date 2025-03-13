@@ -120,12 +120,6 @@ class TitleSerializer(TitleBaseSerializer):
     class Meta(TitleBaseSerializer.Meta):
         pass
 
-    def validate_year(self, value):
-        year_today = timezone.now().year
-        if value > year_today:
-            raise serializers.ValidationError('Проверьте год издания!')
-        return value
-
     def to_representation(self, instance):
         data = super().to_representation(instance)
         data['genre'] = GenreSerializer(instance.genre, many=True).data

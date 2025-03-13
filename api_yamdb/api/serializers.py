@@ -111,10 +111,13 @@ class TitleSerializer(TitleBaseSerializer):
     """
 
     genre = serializers.SlugRelatedField(
-        slug_field='slug', many=True, queryset=Genre.objects.all()
+        slug_field='slug',
+        many=True,
+        queryset=Genre.objects.all(),
+        required=True,
     )
     category = serializers.SlugRelatedField(
-        slug_field='slug', queryset=Category.objects.all()
+        slug_field='slug', queryset=Category.objects.all(), required=True
     )
 
     class Meta(TitleBaseSerializer.Meta):
@@ -128,7 +131,7 @@ class TitleSerializer(TitleBaseSerializer):
 
     def validate_genre(self, value):
         if not value:
-            raise serializers.ValidationError('Значение не может быть пустым.')
+            raise serializers.ValidationError('Необходимо указать минимум один genre.')
         return value
 
 

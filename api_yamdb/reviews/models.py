@@ -2,7 +2,13 @@ from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
-from reviews.const import MAX_SCORE, MIN_SCORE
+from reviews.const import (
+    MAX_DESCRIPTION_LENGTH,
+    MAX_NAME_LENGTH,
+    MAX_SCORE,
+    MAX_SLUG_LENGTH,
+    MIN_SCORE,
+)
 from reviews.validators import year_not_in_future
 
 User = get_user_model()
@@ -11,11 +17,11 @@ User = get_user_model()
 class BaseNameSlug(models.Model):
     name = models.CharField(
         verbose_name='Название',
-        max_length=256,
+        max_length=MAX_NAME_LENGTH,
     )
     slug = models.SlugField(
         verbose_name='Слаг',
-        max_length=50,
+        max_length=MAX_SLUG_LENGTH,
         unique=True,
     )
 
@@ -47,10 +53,10 @@ class Title(models.Model):
     """Модель для представления произведения."""
 
     name = models.CharField(
-        max_length=256, verbose_name='Название произведения'
+        max_length=MAX_NAME_LENGTH, verbose_name='Название произведения'
     )
     description = models.TextField(
-        max_length=200,
+        max_length=MAX_DESCRIPTION_LENGTH,
         verbose_name='Краткое описание произведения',
         blank=True,
     )

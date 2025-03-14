@@ -168,7 +168,6 @@ class TitleViewSet(ModelViewSet):
     def get_queryset(self):
         return (
             Title.objects.prefetch_related('reviews')
-            .all()
             .annotate(rating=Avg('reviews__score'))
             .order_by('name')
         )

@@ -5,13 +5,14 @@ from django.db import models
 class CustomUser(AbstractUser):
     """Кастомная модель пользователя."""
 
+    class Role(models.TextChoices):
+        USER = 'user', 'пользователь'
+        MODERATOR = 'moderator', 'модератор'
+        ADMIN = 'admin', 'админ'
+
     email = models.EmailField(unique=True)
     role = models.CharField(
-        choices=[
-            ('user', 'пользователь'),
-            ('moderator', 'модератор'),
-            ('admin', 'админ'),
-        ],
+        choices=Role.choices,
         max_length=9,
         default='user',
         verbose_name='роль',
@@ -27,8 +28,8 @@ class CustomUser(AbstractUser):
 
     @property
     def is_admin(self):
-        return self.role == 'admin' or self.is_superuser
+        return self.role == self.Role.ADMIN or self.is_superuser
 
     @property
     def is_admin_or_moderator(self):
-        return self.is_admin or self.role == 'moderator'
+        return self.is_admin or self.role == self.Role.MODERATOR

@@ -82,29 +82,21 @@ class GenreSerializer(serializers.ModelSerializer):
         exclude = ('id',)
 
 
-class TitleBaseSerializer(serializers.ModelSerializer):
-    """Базовый сериализатор для модели Title"""
+class TitleGetSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор на чтение для модели Title.
+    """
 
     rating = serializers.IntegerField(read_only=True, default=None)
+    genre = GenreSerializer(many=True)
+    category = CategorySerializer()
 
     class Meta:
         model = Title
         fields = '__all__'
 
 
-class TitleGetSerializer(TitleBaseSerializer):
-    """
-    Сериализатор на чтение для модели Title.
-    """
-
-    genre = GenreSerializer(many=True)
-    category = CategorySerializer()
-
-    class Meta(TitleBaseSerializer.Meta):
-        pass
-
-
-class TitleSerializer(TitleBaseSerializer):
+class TitleSerializer(TitleGetSerializer):
     """
     Сериализатор на запись для модели Title.
     """
@@ -119,14 +111,11 @@ class TitleSerializer(TitleBaseSerializer):
         slug_field='slug', queryset=Category.objects.all(), required=True
     )
 
-    class Meta(TitleBaseSerializer.Meta):
+    class Meta(TitleGetSerializer.Meta):
         pass
 
     def to_representation(self, instance):
-        data = super().to_representation(instance)
-        data['genre'] = GenreSerializer(instance.genre, many=True).data
-        data['category'] = CategorySerializer(instance.category).data
-        return data
+        return TitleGetSerializer(instance).to_representation(instance)
 
     def validate_genre(self, value):
         if not value:

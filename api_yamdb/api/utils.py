@@ -6,7 +6,6 @@ def send_confirmation_code(confirmation_code: str, email: str) -> None:
     send_mail(
         'Код подтверждения',
         f'Ваш код: {confirmation_code}',
-        from_email=None,
+        from_email='test_api@test.ru',
         recipient_list=[email],
-        fail_silently=True,
     )

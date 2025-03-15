@@ -1,12 +1,8 @@
 from datetime import timedelta
 from pathlib import Path
 
-# from config import load_config
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-# CONFIG
-# CONFIG = load_config()
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'p&l%385148kslhtyn^##a1)ilz@4zqj=rq&agdol^##zgl9(vs'
@@ -125,23 +121,5 @@ SIMPLE_JWT = {
 }
 
 # Email settings
-
-# Для хранения этих данных предусмотрен файл .env, а для работы модуль config.
-# Проверка на платформе не пропускает без явного их указания.
-
-# EMAIL_HOST = CONFIG.email.EMAIL_HOST
-# EMAIL_PORT = CONFIG.email.EMAIL_PORT
-# EMAIL_USE_TLS = CONFIG.email.EMAIL_USE_TLS
-# EMAIL_USE_SSL = CONFIG.email.EMAIL_USE_SSL
-#
-# EMAIL_HOST_USER = CONFIG.email.EMAIL_HOST_USER
-# EMAIL_HOST_PASSWORD = CONFIG.email.EMAIL_HOST_PASSWORD
-# DEFAULT_FROM_EMAIL = CONFIG.email.DEFAULT_FROM_EMAIL
-
-EMAIL_HOST = 'smtp.yandex.ru'
-EMAIL_PORT = 465
-EMAIL_USE_TLS = False
-EMAIL_USE_SSL = True
-EMAIL_HOST_USER = 'apiyandb@yandex.ru'
-EMAIL_HOST_PASSWORD = 'mdmdlaqyaygcjpxp'
-DEFAULT_FROM_EMAIL = 'apiyandb@yandex.ru'
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+EMAIL_FILE_PATH = BASE_DIR / 'sent_emails'

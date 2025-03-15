@@ -17,7 +17,7 @@ class CustomUser(AbstractUser):
         choices=Role.choices,
         max_length=MAX_ROLE_LENGTH,
         default='user',
-        verbose_name='роль',
+        verbose_name=Role.USER,
     )
     bio = models.TextField(
         max_length=MAX_BIO_LENGHT, blank=True, verbose_name='биография'

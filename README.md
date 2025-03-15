@@ -99,9 +99,7 @@ pip install -r requirements.txt
 python manage.py migrate
 ```
 
-5) В корне проекта, для хранения переменных окружения, создайте файл .env. Укажите в нем свои конфигурационные данные для SMTP-бэкенда (следуйте примеру - .env_example).
-
-6) Запустить проект:
+5) Запустить проект:
 
 ```
 python3 manage.py runserver
